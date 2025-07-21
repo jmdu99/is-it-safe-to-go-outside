@@ -34,18 +34,26 @@ async def retrieve_endpoint(
 
 @app.get("/risk", response_model=RiskResponse)
 async def risk_endpoint(
-    query: str = Query(..., description="Location string"),
+    query: str | None = Query(None, description="Location string"),
     session_token: str | None = Query(None, description="Mapbox session token"),
     mapbox_id: str | None = Query(None, description="Preselected Mapbox ID")
 ):
     token = session_token or str(uuid4())
+
+    # ensure the caller supplied at least one way to locate a place
+    if query is None and mapbox_id is None:
+        raise HTTPException(
+            status_code=400,
+            detail="Either 'query' or 'mapbox_id' must be supplied."
+        )
     try:
         if mapbox_id:
-            sel = mapbox_id
+            sel_id = mapbox_id
         else:
-            sug = await suggest(query, token)
-            sel = sug[0].id
-        place = await retrieve(sel, token)
+            suggestions = await suggest(query, token)
+            sel_id = suggestions[0].id
+        place = await retrieve(sel_id, token)
+
     except Exception as e:
         raise HTTPException(400, detail=f"Mapbox error: {e}")
 
