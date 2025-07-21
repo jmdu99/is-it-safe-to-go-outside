@@ -1,0 +1,21 @@
+services:
+  redis:
+    image: redis:6
+    # Require the password stored in the CACHE_PASSWORD env var
+    command: ["redis-server", "--requirepass", "${CACHE_PASSWORD}"]
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      # Tell the backend to connect to the Redis service by name
+      - CACHE_HOST=redis
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
