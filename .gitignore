@@ -187,3 +187,4 @@ logs/
 # Other
 .DS_Store
 Thumbs.db
+bin/
