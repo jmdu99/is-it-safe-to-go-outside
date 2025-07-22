@@ -12,6 +12,13 @@ jobs:
     env:
       POETRY_VIRTUALENVS_IN_PROJECT: "true"
       POETRY_NO_INTERACTION: "true"
+      MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
+      OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      CACHE_HOST: ${{ secrets.CACHE_HOST }}
+      CACHE_PORT: ${{ secrets.CACHE_PORT }}
+      CACHE_PASSWORD: ${{ secrets.CACHE_PASSWORD }}
+      CACHE_TTL_SECONDS: ${{ secrets.CACHE_TTL_SECONDS }}
 
     steps:
       - name: Checkout repo
@@ -32,16 +39,10 @@ jobs:
           cd backend
           poetry install --no-root
 
-      - name: Load environment variables
-        run: |
-          set -o allexport
-          source .env
-          set +o allexport
-
       - name: Start API server in background
         run: |
           cd backend
-          nohup poetry run uvicorn app.main:app --env-file ../.env --host 0.0.0.0 --port 8000 > server.log 2>&1 &
+          nohup poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
           sleep 5
 
       - name: Run tests
