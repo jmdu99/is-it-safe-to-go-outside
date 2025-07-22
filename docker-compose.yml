@@ -1,0 +1,24 @@
+services:
+  redis:
+    image: redis:6
+    command: redis-server --requirepass "${CACHE_PASSWORD}" --appendonly yes --save 60 1000
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data               # Persistent storage
+    restart: always
+
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - .env
+    environment:
+      - CACHE_HOST=redis
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:
