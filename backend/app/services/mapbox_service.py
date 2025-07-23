@@ -1,6 +1,8 @@
+# backend/app/services/mapbox_service.py
+
 import httpx
 from aiocache import cached
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 from backend.app.config import settings
 
@@ -15,10 +17,10 @@ class RetrieveResult(BaseModel):
     name: Optional[str]
     full_address: Optional[str]
     place_formatted: Optional[str]
-    center: list[float]
+    center: List[float]
 
 @cached(ttl=None)
-async def suggest(location: str, session_token: str) -> list[SuggestResult]:
+async def suggest(location: str, session_token: str) -> List[SuggestResult]:
     url = "https://api.mapbox.com/search/searchbox/v1/suggest"
     params = {
         "q": location,
