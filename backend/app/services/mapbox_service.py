@@ -1,19 +1,20 @@
 import httpx
 from aiocache import cached
+from typing import Optional
 from pydantic import BaseModel
-from app.config import settings
+from backend.app.config import settings
 
 class SuggestResult(BaseModel):
     id: str
-    name: str | None
-    full_address: str | None
-    place_formatted: str | None
+    name: Optional[str]
+    full_address: Optional[str]
+    place_formatted: Optional[str]
 
 class RetrieveResult(BaseModel):
     id: str
-    name: str | None
-    full_address: str | None
-    place_formatted: str | None
+    name: Optional[str]
+    full_address: Optional[str]
+    place_formatted: Optional[str]
     center: list[float]
 
 @cached(ttl=None)
