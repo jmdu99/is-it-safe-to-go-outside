@@ -20,9 +20,9 @@ from storage.db import (
 @pytest.fixture(autouse=True)
 def clean_tables():
     with get_connection() as conn:
-        conn.execute(text(
-            "TRUNCATE weather_data, air_quality, risk_index RESTART IDENTITY"
-        ))
+        conn.execute(
+            text("TRUNCATE weather_data, air_quality, risk_index RESTART IDENTITY")
+        )
         conn.commit()
     yield
 
@@ -61,22 +61,32 @@ def test_table_schema():
     }
     with get_connection() as conn:
         for table, cols in expected.items():
-            rows = conn.execute(text(
-                "SELECT column_name, data_type FROM information_schema.columns "
-                "WHERE table_name=:table ORDER BY column_name"
-            ), {"table": table}).fetchall()
+            rows = conn.execute(
+                text(
+                    "SELECT column_name, data_type FROM information_schema.columns "
+                    "WHERE table_name=:table ORDER BY column_name"
+                ),
+                {"table": table},
+            ).fetchall()
             found = {r.column_name: r.data_type for r in rows}
             assert found == cols
 
-            pk_rows = conn.execute(text(
-                "SELECT kcu.column_name FROM information_schema.table_constraints tc "
-                "JOIN information_schema.key_column_usage kcu "
-                "ON tc.constraint_name = kcu.constraint_name "
-                "WHERE tc.constraint_type='PRIMARY KEY' "
-                "AND tc.table_name=:table "
-                "ORDER BY kcu.ordinal_position"
-            ), {"table": table}).fetchall()
-            assert [r.column_name for r in pk_rows] == ["latitude", "longitude", "measured_at"]
+            pk_rows = conn.execute(
+                text(
+                    "SELECT kcu.column_name FROM information_schema.table_constraints tc "
+                    "JOIN information_schema.key_column_usage kcu "
+                    "ON tc.constraint_name = kcu.constraint_name "
+                    "WHERE tc.constraint_type='PRIMARY KEY' "
+                    "AND tc.table_name=:table "
+                    "ORDER BY kcu.ordinal_position"
+                ),
+                {"table": table},
+            ).fetchall()
+            assert [r.column_name for r in pk_rows] == [
+                "latitude",
+                "longitude",
+                "measured_at",
+            ]
 
 
 def test_insert_and_select_weather():
@@ -85,10 +95,12 @@ def test_insert_and_select_weather():
     insert_weather_data(lat, lon, now, 21.5, 78, 4.12)
 
     with get_connection() as conn:
-        row = conn.execute(text(
-            "SELECT latitude, longitude, measured_at, temp_celsius, humidity, wind_speed "
-            "FROM weather_data"
-        )).fetchone()
+        row = conn.execute(
+            text(
+                "SELECT latitude, longitude, measured_at, temp_celsius, humidity, wind_speed "
+                "FROM weather_data"
+            )
+        ).fetchone()
 
     assert row.latitude == lat
     assert row.longitude == lon
@@ -106,16 +118,27 @@ def test_insert_and_select_air_quality():
     now = datetime.utcnow().isoformat()
     lat, lon = 48.8566, 2.3522
     insert_air_quality_data(
-        lat, lon, now, aqi=1,
-        co=107.94, no=0.56, no2=2.28, o3=36.04,
-        so2=0.16, pm2_5=1.79, pm10=2.66, nh3=1.63
+        lat,
+        lon,
+        now,
+        aqi=1,
+        co=107.94,
+        no=0.56,
+        no2=2.28,
+        o3=36.04,
+        so2=0.16,
+        pm2_5=1.79,
+        pm10=2.66,
+        nh3=1.63,
     )
 
     with get_connection() as conn:
-        row = conn.execute(text(
-            "SELECT latitude, longitude, measured_at, aqi, co, no, no2, o3, so2, pm2_5, pm10, nh3 "
-            "FROM air_quality"
-        )).fetchone()
+        row = conn.execute(
+            text(
+                "SELECT latitude, longitude, measured_at, aqi, co, no, no2, o3, so2, pm2_5, pm10, nh3 "
+                "FROM air_quality"
+            )
+        ).fetchone()
 
     assert row.aqi == 1
     assert row.co == 107.94
@@ -138,9 +161,11 @@ def test_insert_and_select_risk_index():
     insert_risk_index(lat, lon, now, 0.15, "Low")
 
     with get_connection() as conn:
-        row = conn.execute(text(
-            "SELECT latitude, longitude, measured_at, risk_value, risk_level FROM risk_index"
-        )).fetchone()
+        row = conn.execute(
+            text(
+                "SELECT latitude, longitude, measured_at, risk_value, risk_level FROM risk_index"
+            )
+        ).fetchone()
 
     assert row.risk_value == 0.15
     assert row.risk_level == "Low"
