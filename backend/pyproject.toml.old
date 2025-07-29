@@ -1,19 +1,17 @@
 [tool.poetry]
 name = "respiratory-risk-backend"
 version = "0.1.0"
-description = "Backend service for respiratory risk API"      # <-- ajouté
-authors = ["Ton Nom <ton.email@example.com>"]               # <-- ajouté
 
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.100.0"
-uvicorn = { extras = ["standard"], version = "^0.23.0" }
+uvicorn = {extras = ["standard"], version = "^0.23.0"}
 httpx = "^0.25.0"
 pydantic = "^2.2.0"
 pydantic-settings = "^2.0.0"
-aiocache = { extras = ["redis"], version = "^0.11.1" }
+aiocache = {extras = ["redis"], version = "^0.11.1"}
 python-dotenv = "^1.0.0"
-asyncpg = "^0.28.0"           # <-- corrigé ici
+asyncpg = "^0.28.0"
 sqlalchemy = "^2.0"
 psycopg2-binary = "^2.9"
 
