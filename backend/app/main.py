@@ -1,14 +1,14 @@
 from uuid import uuid4
 from fastapi import FastAPI, HTTPException, Query
-from backend.app.models import (
+from app.models import (
     SuggestResult, RetrieveResult,
     RiskResponse, Coordinate,
     WeatherResponse, PollutionResponse
 )
-from backend.app.services.mapbox_service import suggest, retrieve
-from backend.app.services.weather_service import fetch_current_weather
-from backend.app.services.pollution_service import fetch_air_pollution
-from backend.app.services.risk_service import compute_risk
+from app.services.mapbox_service import suggest, retrieve
+from app.services.weather_service import fetch_current_weather
+from app.services.pollution_service import fetch_air_pollution
+from app.services.risk_service import compute_risk
 
 app = FastAPI(title="Respiratory Risk API")
 
