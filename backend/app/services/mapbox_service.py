@@ -4,7 +4,7 @@ import httpx
 from aiocache import cached
 from typing import Optional, List
 from pydantic import BaseModel
-from backend.app.config import settings
+from app.config import settings
 
 class SuggestResult(BaseModel):
     id: str
