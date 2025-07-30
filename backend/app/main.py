@@ -36,10 +36,10 @@ async def retrieve_endpoint(
 
 @app.get("/risk", response_model=RiskResponse)
 async def risk_endpoint(
+    background_tasks: BackgroundTasks,
     query: str | None = Query(None),
     session_token: str | None = Query(None),
     mapbox_id: str | None = Query(None),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ):
     if not (query or mapbox_id):
         raise HTTPException(400, detail="query or mapbox_id required")
