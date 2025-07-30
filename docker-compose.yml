@@ -5,7 +5,19 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - redis-data:/data               # Persistent storage
+      - redis-data:/data
+    restart: always
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     restart: always
 
   backend:
@@ -15,10 +27,14 @@ services:
       - .env
     environment:
       - CACHE_HOST=redis
+      - POSTGRES_HOST=db
+      - DATABASE_URL=${DATABASE_URL:-postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}}
     ports:
       - "8000:8000"
     depends_on:
       - redis
+      - db
 
 volumes:
   redis-data:
+  postgres-data:

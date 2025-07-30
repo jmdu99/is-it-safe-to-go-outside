@@ -11,6 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      # PostgreSQL service
       postgres:
         image: postgres:13
         env:
@@ -25,15 +26,35 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+      # Redis service
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+
     env:
       POETRY_VIRTUALENVS_IN_PROJECT: "true"
       POETRY_NO_INTERACTION: "true"
+
+      # API keys
       MAPBOX_TOKEN: ${{ secrets.MAPBOX_TOKEN }}
       OPENWEATHER_KEY: ${{ secrets.OPENWEATHER_KEY }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      CACHE_HOST: ${{ secrets.CACHE_HOST }}
-      CACHE_PORT: ${{ secrets.CACHE_PORT }}
-      CACHE_PASSWORD: ${{ secrets.CACHE_PASSWORD }}
+
+      # Database
+      DATABASE_URL: postgresql+psycopg2://postgres:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/safeair_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_DB: safeair_db
+      POSTGRES_HOST: localhost
+
+      CACHE_HOST: localhost
+      CACHE_PORT: 6379
+      CACHE_PASSWORD: ""
       CACHE_TTL_SECONDS: ${{ secrets.CACHE_TTL_SECONDS }}
 
     steps:
@@ -50,12 +71,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
 
-      - name: Install dependencies with Poetry
+      - name: Install dependencies
         run: |
           cd backend
           poetry install --no-root --with dev
 
-      - name: Start API server in background
+      - name: Start API server
         run: |
           cd backend
           nohup poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 > server.log 2>&1 &
