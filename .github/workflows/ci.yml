@@ -85,6 +85,7 @@ jobs:
       - name: Run tests
         run: |
           cd backend
+          export PYTHONPATH="$PWD"
           poetry run pytest -q --maxfail=1
 
       - name: Dump server logs on failure
