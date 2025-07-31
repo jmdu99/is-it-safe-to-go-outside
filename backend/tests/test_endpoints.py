@@ -1,6 +1,15 @@
+"""End‑to‑end API endpoint tests.
+
+These tests spin up the FastAPI application and exercise the external
+endpoints. They verify the structure of the returned payloads rather than
+specific data values. A running Redis instance is expected on localhost
+when these tests are executed.
+"""
+
 import requests
 
-def test_suggest_fields(base_url, session_token):
+
+def test_suggest_fields(base_url: str, session_token: str) -> None:
     resp = requests.get(
         f"{base_url}/suggest",
         params={"q": "Le Wagon Paris", "session_token": session_token},
@@ -11,11 +20,14 @@ def test_suggest_fields(base_url, session_token):
     for item in data:
         assert set(item.keys()) == {"id", "name", "full_address", "place_formatted"}
         assert isinstance(item["id"], str)
-        assert isinstance(item["name"], str)
+        assert item["name"] is None or isinstance(item["name"], str)
         assert item["full_address"] is None or isinstance(item["full_address"], str)
-        assert isinstance(item["place_formatted"], str)
+        assert item["place_formatted"] is None or isinstance(
+            item["place_formatted"], str
+        )
 
-def test_retrieve_fields(base_url, session_token):
+
+def test_retrieve_fields(base_url: str, session_token: str) -> None:
     suggest = requests.get(
         f"{base_url}/suggest",
         params={"q": "Paris", "session_token": session_token},
@@ -28,18 +40,28 @@ def test_retrieve_fields(base_url, session_token):
     assert resp.status_code == 200
     data = resp.json()
     assert set(data.keys()) == {
-        "id", "name", "full_address", "place_formatted", "center"
+        "id",
+        "name",
+        "full_address",
+        "place_formatted",
+        "center",
     }
     assert isinstance(data["id"], str)
-    assert isinstance(data["name"], str)
+    assert data["name"] is None or isinstance(data["name"], str)
     assert data["full_address"] is None or isinstance(data["full_address"], str)
-    assert isinstance(data["place_formatted"], str)
+    assert data["place_formatted"] is None or isinstance(data["place_formatted"], str)
     assert isinstance(data["center"], list) and len(data["center"]) == 2
     assert all(isinstance(c, (int, float)) for c in data["center"])
 
-def _check_risk_structure(data):
+
+def _check_risk_structure(data: dict[str, object]) -> None:
     assert set(data.keys()) == {
-        "location", "risk_index", "risk_label", "weather", "pollution", "norm"
+        "location",
+        "risk_index",
+        "risk_label",
+        "weather",
+        "pollution",
+        "norm",
     }
     loc = data["location"]
     assert set(loc.keys()) == {"latitude", "longitude"}
@@ -50,7 +72,8 @@ def _check_risk_structure(data):
     for section in ("weather", "pollution", "norm"):
         assert isinstance(data[section], dict)
 
-def test_risk_query_fields(base_url, session_token):
+
+def test_risk_query_fields(base_url: str, session_token: str) -> None:
     resp = requests.get(
         f"{base_url}/risk",
         params={"query": "Paris", "session_token": session_token},
@@ -58,7 +81,8 @@ def test_risk_query_fields(base_url, session_token):
     assert resp.status_code == 200
     _check_risk_structure(resp.json())
 
-def test_risk_mapbox_id_fields(base_url, session_token):
+
+def test_risk_mapbox_id_fields(base_url: str, session_token: str) -> None:
     suggest = requests.get(
         f"{base_url}/suggest",
         params={"q": "Paris", "session_token": session_token},

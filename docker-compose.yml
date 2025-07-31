@@ -25,6 +25,8 @@ services:
     volumes:
       - redis-data:/data
     restart: always
+    networks:
+      - respiratory-network
 
   db:
     image: postgres:13
@@ -37,6 +39,8 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: always
+    networks:
+      - respiratory-network
 
   backend:
     build:
@@ -51,6 +55,8 @@ services:
     depends_on:
       - redis
       - db
+    networks:
+      - respiratory-network
 
   nginx:
     image: nginx:alpine
