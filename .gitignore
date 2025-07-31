@@ -123,6 +123,8 @@ ENV/
 env.bak/
 venv.bak/
 
+ssl/key.pem
+
 # Spyder
 .spyderproject
 .spyproject
