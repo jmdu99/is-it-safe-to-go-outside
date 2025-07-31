@@ -1,0 +1,2 @@
+
+Command '['/home/fresneldountio/.pyenv/shims/python', '-EsSc', 'import sys; print(sys.executable)']' returned non-zero exit status 127.
