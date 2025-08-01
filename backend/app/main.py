@@ -117,7 +117,7 @@ async def risk_endpoint(
         raise HTTPException(400, detail=f"Data fetch error: {e}")
 
     idx, normed = compute_risk(weather, pollution)
-    label = "Low" if idx <= 0.25 else "Moderate" if idx <= 0.50 else "High"
+    label = "Low" if idx <= 0.20 else "Moderate" if idx <= 0.40 else "High"
 
     # 1) Insert raw weather data with its own timestamp
     background_tasks.add_task(
