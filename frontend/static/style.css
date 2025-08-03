@@ -1,6 +1,6 @@
-/* Styles personnalisés pour l'application Respiratory Risk */
+/* Custom styles for the Safe Air application */
 
-/* Variables CSS */
+/* Variables */
 :root {
     --primary-color: #1f77b4;
     --success-color: #28a745;
@@ -14,12 +14,12 @@
     --transition: all 0.3s ease;
 }
 
-/* Styles globaux */
+/* Global container */
 .main {
     padding-bottom: 2rem;
 }
 
-/* Header principal */
+/* Header */
 .main-header {
     text-align: center;
     margin-bottom: 2rem;
@@ -43,14 +43,14 @@
     margin: 0;
 }
 
-/* Sections */
+/* Section headers */
 .section-header {
     border-left: 4px solid var(--primary-color);
     padding-left: 1rem;
     margin: 2rem 0 1rem 0;
 }
 
-/* Cartes de métriques */
+/* Metric cards */
 .metric-card {
     background: white;
     padding: 1.5rem;
@@ -65,7 +65,7 @@
     box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* Badges pour les types de lieux */
+/* Place badge */
 .place-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
@@ -76,7 +76,7 @@
     color: white;
 }
 
-/* Suggestions de recherche */
+/* Suggestion items */
 .suggestion-item {
     padding: 0.75rem;
     border: 1px solid #dee2e6;
@@ -92,7 +92,7 @@
     border-color: var(--primary-color);
 }
 
-/* Indicateurs de risque */
+/* Risk indicator badges */
 .risk-indicator {
     display: inline-flex;
     align-items: center;
@@ -117,7 +117,7 @@
     color: white;
 }
 
-/* Graphiques */
+/* Chart container */
 .chart-container {
     background: white;
     padding: 1rem;
@@ -126,7 +126,7 @@
     margin: 1rem 0;
 }
 
-/* Status des API */
+/* API status */
 .api-status {
     display: flex;
     justify-content: space-between;
@@ -143,7 +143,7 @@
     gap: 0.5rem;
 }
 
-/* Loading spinner personnalisé */
+/* Custom spinner */
 .custom-spinner {
     display: inline-block;
     width: 20px;
@@ -159,7 +159,7 @@
     100% { transform: rotate(360deg); }
 }
 
-/* Alertes personnalisées */
+/* Custom alerts */
 .custom-alert {
     padding: 1rem;
     border-radius: var(--border-radius);
@@ -191,7 +191,7 @@
     color: #721c24;
 }
 
-/* Tooltips */
+/* Tooltip trigger */
 .tooltip-trigger {
     cursor: help;
     border-bottom: 1px dotted var(--primary-color);
@@ -217,23 +217,21 @@
     margin: 0.25rem 0;
 }
 
-/* Responsive design */
+/* Responsive tweaks */
 @media (max-width: 768px) {
     .main-header {
         margin: -1rem -1rem 2rem -1rem;
         padding: 1.5rem 1rem;
     }
-    
     .main-header h1 {
         font-size: 2rem;
     }
-    
     .main-header p {
         font-size: 1rem;
     }
 }
 
-/* Amélioration des composants Streamlit */
+/* Buttons */
 .stButton > button {
     border-radius: var(--border-radius);
     border: 1px solid var(--primary-color);
@@ -249,6 +247,7 @@
     transform: translateY(-1px);
 }
 
+/* Text input */
 .stTextInput > div > div > input {
     border-radius: var(--border-radius);
     border: 2px solid #e9ecef;
@@ -260,11 +259,12 @@
     box-shadow: 0 0 0 0.2rem rgba(31, 119, 180, 0.25);
 }
 
+/* Select boxes */
 .stSelectbox > div > div > select {
     border-radius: var(--border-radius);
 }
 
-/* Tables */
+/* Dataframes */
 .dataframe {
     border-radius: var(--border-radius);
     overflow: hidden;
@@ -287,7 +287,7 @@
     font-size: 0.9rem;
 }
 
-/* Loading states */
+/* Loading container */
 .loading-container {
     display: flex;
     flex-direction: column;
@@ -303,7 +303,7 @@
     opacity: 0.7;
 }
 
-/* Map container improvements */
+/* Map container */
 .map-container {
     border-radius: var(--border-radius);
     overflow: hidden;
@@ -311,7 +311,7 @@
     margin: 1rem 0;
 }
 
-/* Coordonnées */
+/* Coordinates display */
 .coordinates-display {
     font-family: monospace;
     background: var(--light-color);
@@ -320,7 +320,7 @@
     border: 1px solid #dee2e6;
 }
 
-/* Animation pour les nouveaux éléments */
+/* Fade in animation */
 .fade-in {
     animation: fadeIn 0.5s ease-in-out;
 }
@@ -336,7 +336,6 @@
         background: none !important;
         color: black !important;
     }
-    
     .stButton, .debug-panel {
         display: none !important;
     }
@@ -352,13 +351,12 @@
     }
 }
 
-/* Dark mode (si supporté) */
+/* Dark mode */
 @media (prefers-color-scheme: dark) {
     :root {
         --light-color: #2d3748;
         --dark-color: #e2e8f0;
     }
-    
     .metric-card, .chart-container {
         background: #2d3748;
         color: #e2e8f0;

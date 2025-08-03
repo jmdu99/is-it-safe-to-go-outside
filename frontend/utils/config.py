@@ -1,8 +1,17 @@
 """
-Configuration de l'application
+Configuration management for the Safe Air frontend.
+
+This module defines a Config class that reads environment variables to
+configure the backend URL, request timeouts and other settings. It also
+provides default values for development and a helper to load variables
+from a ``.env`` file. All strings are provided in English.
 """
+
+from __future__ import annotations
+
 import os
-from typing import Optional
+from typing import Optional, List
+
 
 class Config:
     # Backend API
@@ -14,7 +23,7 @@ class Config:
     def API_TIMEOUT(self) -> int:
         return int(os.getenv("API_TIMEOUT", "10"))
 
-    # Mode de développement
+    # Development mode
     @property
     def DEVELOPMENT_MODE(self) -> bool:
         return os.getenv("DEVELOPMENT_MODE", "false").lower() == "true"
@@ -23,40 +32,39 @@ class Config:
     def USE_MOCK_API(self) -> bool:
         return os.getenv("USE_MOCK_API", "false").lower() == "true"
 
-    # Mapbox (pour affichage côté frontend si nécessaire)
+    # Mapbox (if needed by the frontend)
     @property
     def MAPBOX_PUBLIC_TOKEN(self) -> Optional[str]:
         return os.getenv("MAPBOX_PUBLIC_TOKEN")
 
-    # Configuration Streamlit
+    # Streamlit page configuration
     @property
     def PAGE_TITLE(self) -> str:
-        return "Est-il sûr de sortir ?"
+        return "Is it safe to go outside?"
 
     @property
     def PAGE_ICON(self) -> str:
-        return "🌬️"
+        # Use a lungs emoji to better represent the respiratory focus
+        return "🫁"
 
     @property
     def LAYOUT(self) -> str:
         return "wide"
 
-    # Cache
+    # Caching
     @property
     def CACHE_TTL(self) -> int:
         return int(os.getenv("CACHE_TTL", "300"))
 
-    # Logs
+    # Logging
     @property
     def LOG_LEVEL(self) -> str:
         return os.getenv("LOG_LEVEL", "INFO")
 
     def is_production(self) -> bool:
-        """Détermine si on est en mode production"""
         return not self.DEVELOPMENT_MODE
 
     def get_api_client_class(self):
-        """Retourne la classe de client API appropriée"""
         if self.USE_MOCK_API:
             from services.api_client import MockAPIClient
             return MockAPIClient
@@ -64,25 +72,21 @@ class Config:
             from services.api_client import APIClient
             return APIClient
 
-    def validate_config(self) -> list:
-        """Valide la configuration et retourne les erreurs"""
-        errors = []
-
+    def validate_config(self) -> List[str]:
+        errors: List[str] = []
         if not self.BACKEND_URL:
-            errors.append("BACKEND_URL est requis")
-
+            errors.append("BACKEND_URL is required")
         if self.API_TIMEOUT <= 0:
-            errors.append("API_TIMEOUT doit être positif")
-
+            errors.append("API_TIMEOUT must be positive")
         if self.MAPBOX_PUBLIC_TOKEN and not self.MAPBOX_PUBLIC_TOKEN.startswith('pk.'):
-            errors.append("MAPBOX_PUBLIC_TOKEN semble invalide")
-
+            errors.append("MAPBOX_PUBLIC_TOKEN appears invalid")
         return errors
 
-# Instance globale à utiliser partout
+
+# Global config instance used throughout the application
 config = Config()
 
-# Variables d'environnement par défaut pour le développement
+# Default environment variables for development
 DEFAULT_ENV_VARS = {
     "BACKEND_URL": "http://backend:8000",
     "API_TIMEOUT": "10",
@@ -92,8 +96,8 @@ DEFAULT_ENV_VARS = {
     "LOG_LEVEL": "INFO"
 }
 
-def load_env_file(filename: str = ".env"):
-    """Charge les variables d'environnement depuis un fichier"""
+def load_env_file(filename: str = ".env") -> None:
+    """Load environment variables from a file in KEY=VALUE format."""
     if os.path.exists(filename):
         with open(filename, 'r') as f:
             for line in f:
@@ -102,21 +106,21 @@ def load_env_file(filename: str = ".env"):
                     key, value = line.split('=', 1)
                     os.environ[key] = value
 
-def create_env_template(filename: str = ".env.example"):
-    """Crée un fichier d'exemple de configuration"""
+def create_env_template(filename: str = ".env.example") -> None:
+    """Create a template .env file with example settings."""
     with open(filename, 'w') as f:
-        f.write("# Configuration du frontend Streamlit\n\n")
-        f.write("# URL du backend API\n")
+        f.write("# Safe Air frontend configuration\n\n")
+        f.write("# URL of the backend API\n")
         f.write("BACKEND_URL=http://backend:8000\n\n")
-        f.write("# Timeout des requêtes API (secondes)\n")
+        f.write("# Timeout for API requests (seconds)\n")
         f.write("API_TIMEOUT=10\n\n")
-        f.write("# Mode développement\n")
+        f.write("# Development mode\n")
         f.write("DEVELOPMENT_MODE=true\n\n")
-        f.write("# Utiliser des données mockées (pour tests)\n")
+        f.write("# Use mock API data (for testing)\n")
         f.write("USE_MOCK_API=false\n\n")
-        f.write("# Token public Mapbox (optionnel)\n")
+        f.write("# Public Mapbox token (optional)\n")
         f.write("# MAPBOX_PUBLIC_TOKEN=pk.your_public_token_here\n\n")
-        f.write("# TTL du cache (secondes)\n")
+        f.write("# TTL for the in‑memory cache (seconds)\n")
         f.write("CACHE_TTL=300\n\n")
-        f.write("# Niveau de log\n")
+        f.write("# Logging level\n")
         f.write("LOG_LEVEL=INFO\n")
