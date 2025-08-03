@@ -1,9 +1,13 @@
-"""Service for retrieving current air pollution data.
+"""Service for retrieving current air pollution data (patched).
 
-This module wraps the OpenWeatherMap air pollution API. It includes
-exponential backoff retry logic, optional profiling and a stubbed fallback
-when no API key is configured. Returned data is normalized into a
-:class:`PollutionResponse` model.
+This module wraps the OpenWeatherMap air pollution API.  It includes
+exponential backoff retry logic, optional profiling, a stubbed fallback
+when no API key is configured and, importantly, an explicit TTL on the
+cache decorator to ensure that air pollution data is refreshed after the
+configured timeout.  Without specifying ``ttl``, ``aiocache`` would cache
+responses indefinitely, causing outdated data to persist beyond the 1‑hour
+window described in the documentation.  By using ``settings.cache_ttl_seconds``
+we respect the intended caching duration.
 """
 
 from __future__ import annotations
@@ -18,14 +22,14 @@ from ..models import PollutionResponse
 from ..utils import async_retry, profile_if_enabled, get_http_client
 
 
-@cached()
+@cached(ttl=settings.cache_ttl_seconds)
 @async_retry(max_attempts=3)
 @profile_if_enabled
 async def fetch_air_pollution(lat: float, lon: float) -> PollutionResponse:
     """Fetch current air pollution metrics for a location.
 
     When the OpenWeather API key is missing, a deterministic stubbed
-    pollution response is returned. The function automatically retries on
+    pollution response is returned.  The function automatically retries on
     transient errors using exponential backoff and emits profiling data
     when enabled via the ``ENABLE_PROFILING`` environment variable.
 
