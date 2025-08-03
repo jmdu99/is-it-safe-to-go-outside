@@ -1,10 +1,17 @@
-"""Service for retrieving current weather conditions.
+"""Service for retrieving current weather conditions (patched).
 
-This module wraps the OpenWeatherMap API to fetch current weather data. It
-includes caching, retry logic with exponential backoff, optional profiling
-and a stubbed fallback when the API key is not configured. The returned
-data is normalized into a :class:`WeatherResponse` model defined in
-:mod:`app.models`.
+This module wraps the OpenWeatherMap API to fetch current weather data.  It
+includes caching with a TTL derived from the environment (``settings.cache_ttl_seconds``),
+retry logic with exponential backoff, optional profiling and a stubbed
+fallback when the API key is not configured.  The returned data is
+normalized into a ``WeatherResponse`` model defined in :mod:`app.models`.
+
+This file overrides the default caching behaviour by specifying a TTL
+parameter on the ``@cached`` decorator.  Without this parameter, ``aiocache``
+will cache results indefinitely, causing stale weather data to persist even
+after the intended expiry window.  By reading ``settings.cache_ttl_seconds``
+from the backend configuration, this module ensures the cache expires
+automatically and new data is fetched from OpenWeather when needed.
 """
 
 from __future__ import annotations
@@ -19,14 +26,14 @@ from ..models import WeatherResponse
 from ..utils import async_retry, profile_if_enabled, get_http_client
 
 
-@cached()
+@cached(ttl=settings.cache_ttl_seconds)
 @async_retry(max_attempts=3)
 @profile_if_enabled
 async def fetch_current_weather(lat: float, lon: float) -> WeatherResponse:
     """Fetch the current weather for a given latitude and longitude.
 
     When the OpenWeather API key is missing, a stubbed weather response is
-    returned with placeholder values. The function automatically retries on
+    returned with placeholder values.  The function automatically retries on
     transient network failures using an exponential backoff strategy and
     writes profiling information when enabled via ``ENABLE_PROFILING``.
 
