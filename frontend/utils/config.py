@@ -67,9 +67,11 @@ class Config:
     def get_api_client_class(self):
         if self.USE_MOCK_API:
             from services.api_client import MockAPIClient
+
             return MockAPIClient
         else:
             from services.api_client import APIClient
+
             return APIClient
 
     def validate_config(self) -> List[str]:
@@ -78,7 +80,7 @@ class Config:
             errors.append("BACKEND_URL is required")
         if self.API_TIMEOUT <= 0:
             errors.append("API_TIMEOUT must be positive")
-        if self.MAPBOX_PUBLIC_TOKEN and not self.MAPBOX_PUBLIC_TOKEN.startswith('pk.'):
+        if self.MAPBOX_PUBLIC_TOKEN and not self.MAPBOX_PUBLIC_TOKEN.startswith("pk."):
             errors.append("MAPBOX_PUBLIC_TOKEN appears invalid")
         return errors
 
@@ -93,22 +95,24 @@ DEFAULT_ENV_VARS = {
     "DEVELOPMENT_MODE": "true",
     "USE_MOCK_API": "false",
     "CACHE_TTL": "300",
-    "LOG_LEVEL": "INFO"
+    "LOG_LEVEL": "INFO",
 }
+
 
 def load_env_file(filename: str = ".env") -> None:
     """Load environment variables from a file in KEY=VALUE format."""
     if os.path.exists(filename):
-        with open(filename, 'r') as f:
+        with open(filename, "r") as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#'):
-                    key, value = line.split('=', 1)
+                if line and not line.startswith("#"):
+                    key, value = line.split("=", 1)
                     os.environ[key] = value
+
 
 def create_env_template(filename: str = ".env.example") -> None:
     """Create a template .env file with example settings."""
-    with open(filename, 'w') as f:
+    with open(filename, "w") as f:
         f.write("# Safe Air frontend configuration\n\n")
         f.write("# URL of the backend API\n")
         f.write("BACKEND_URL=http://backend:8000\n\n")

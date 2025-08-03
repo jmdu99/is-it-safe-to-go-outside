@@ -22,7 +22,8 @@ class TooltipComponent:
         st.markdown("### ❓ User guide")
         # How to use the application
         with st.expander("🔍 How to use the application"):
-            st.markdown("""
+            st.markdown(
+                """
             **Steps:**
             1. **Search** for a place using the search bar.
             2. **Select** a suggestion from the list (press Enter to fetch suggestions).
@@ -34,34 +35,41 @@ class TooltipComponent:
             - 🗺️ Interactive map with coloured markers
             - 📊 Detailed dashboard with metrics and charts
             - 🎯 Respiratory risk index combining weather and air quality
-            """)
+            """
+            )
         # Risk level explanation
         with st.expander("🎯 Understanding the risk index"):
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.markdown("""
+                st.markdown(
+                    """
                 **🟢 LOW (0.00–0.20)**
                 
                 - Excellent conditions
                 - Outdoor activities encouraged
                 - No special precautions
-                """)
+                """
+                )
             with col2:
-                st.markdown("""
+                st.markdown(
+                    """
                 **🟡 MODERATE (0.21–0.40)**
                 
                 - Acceptable conditions
                 - Sensitive individuals should take care
                 - Reduce prolonged exposure
-                """)
+                """
+                )
             with col3:
-                st.markdown("""
+                st.markdown(
+                    """
                 **🔴 HIGH (0.41–1.00)**
                 
                 - Unfavourable conditions
                 - Avoid prolonged outdoor activities
                 - Consider wearing a mask
-                """)
+                """
+                )
         # Pollutant information
         with st.expander("💨 Air quality – Pollutants"):
             TooltipComponent._render_pollution_info()
@@ -70,7 +78,8 @@ class TooltipComponent:
             TooltipComponent._render_weather_info()
         # Limitations and data sources
         with st.expander("⚠️ Limitations and sources"):
-            st.markdown("""
+            st.markdown(
+                """
             **Current limitations:**
             - Mapbox APIs primarily support the United States, Canada and Europe.
             - OpenWeather data updates approximately every 2 hours.
@@ -87,7 +96,8 @@ class TooltipComponent:
             (PM2.5, PM10, O₃, NO₂, SO₂, CO) and normalised weather
             factors (temperature, humidity, wind speed) according to
             the documentation.
-            """)
+            """
+            )
 
     @staticmethod
     def _render_pollution_info() -> None:
@@ -125,8 +135,8 @@ class TooltipComponent:
     def _risk_tooltip(risk_data: dict | None) -> str:
         if not risk_data:
             return "No risk data available"
-        risk_label = risk_data.get('risk_label', 'Unknown')
-        risk_index = risk_data.get('risk_index', 0.0)
+        risk_label = risk_data.get("risk_label", "Unknown")
+        risk_index = risk_data.get("risk_index", 0.0)
         explanation = RISK_INFO.get(risk_label.upper(), {})
         return f"""
         **Risk level: {risk_label.upper()}**
@@ -143,8 +153,8 @@ class TooltipComponent:
     def _pollutant_tooltip(pollutant_data: dict | None) -> str:
         if not pollutant_data:
             return "No pollutant data available"
-        pollutant = pollutant_data.get('type', 'unknown').lower()
-        value = pollutant_data.get('value', 0.0)
+        pollutant = pollutant_data.get("type", "unknown").lower()
+        value = pollutant_data.get("value", 0.0)
         info = POLLUTION_INFO.get(pollutant, {})
         return f"""
         **{info.get('name', pollutant.upper())}**
@@ -162,9 +172,9 @@ class TooltipComponent:
     def _weather_tooltip(weather_data: dict | None) -> str:
         if not weather_data:
             return "No weather data available"
-        temp = weather_data.get('temp_celsius', 0.0)
-        humidity = weather_data.get('humidity', 0.0)
-        wind_speed = weather_data.get('wind_speed', 0.0)
+        temp = weather_data.get("temp_celsius", 0.0)
+        humidity = weather_data.get("humidity", 0.0)
+        wind_speed = weather_data.get("wind_speed", 0.0)
         return f"""
         **Impact of weather conditions**
 
@@ -215,20 +225,24 @@ class TooltipComponent:
         with st.sidebar:
             st.markdown("### 🆘 Quick help")
             with st.expander("🎯 Risk index"):
-                st.markdown("""
+                st.markdown(
+                    """
                 - 🟢 **0.00–0.20**: Low
                 - 🟡 **0.21–0.40**: Moderate
                 - 🔴 **0.41–1.00**: High
-                """)
+                """
+                )
             with st.expander("💨 Key pollutants"):
-                st.markdown("""
+                st.markdown(
+                    """
                 - **PM2.5**: Fine particulate matter
                 - **PM10**: Coarse particulate matter
                 - **O₃**: Ozone
                 - **NO₂**: Nitrogen dioxide
                 - **SO₂**: Sulphur dioxide
                 - **CO**: Carbon monoxide
-                """)
+                """
+                )
             st.markdown("---")
             st.markdown("**🌍 Coverage**: US, Canada & Europe")
             st.markdown("**🕐 Data updates**: approx. every 2 hours")

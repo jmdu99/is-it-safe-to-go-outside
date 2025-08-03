@@ -24,7 +24,7 @@ from utils.helpers import get_risk_color, format_coordinates, format_timestamp
 class MapComponent:
     def __init__(self) -> None:
         # Default location and zoom when no data is available (Paris)
-        self.default_location = DEFAULT_COORDINATES['PARIS']
+        self.default_location = DEFAULT_COORDINATES["PARIS"]
         self.default_zoom = 10
 
     def render(self, risk_data: dict, location_data: dict):
@@ -36,8 +36,8 @@ class MapComponent:
         marker colour matches the risk label (green, orange or red)."""
         if not risk_data or not location_data:
             return self.render_default()
-        latitude = risk_data['location']['latitude']
-        longitude = risk_data['location']['longitude']
+        latitude = risk_data["location"]["latitude"]
+        longitude = risk_data["location"]["longitude"]
         # Start with an empty map (no default tile). We'll add base layers in
         # ``_add_map_layers``.  Creating the map with ``tiles=None`` lets us
         # explicitly set the order of layers, ensuring that OpenStreetMap is
@@ -46,7 +46,7 @@ class MapComponent:
             location=[latitude, longitude],
             zoom_start=12,
             control_scale=True,
-            tiles=None
+            tiles=None,
         )
         # Add risk marker with colour reflecting the risk label
         self._add_risk_marker(m, risk_data, location_data)
@@ -54,10 +54,7 @@ class MapComponent:
         self._add_map_layers(m)
         # Render map in Streamlit
         map_data = st_folium(
-            m,
-            width=700,
-            height=500,
-            returned_objects=["last_object_clicked"]
+            m, width=700, height=500, returned_objects=["last_object_clicked"]
         )
         # Display coordinates below the map
         self._display_coordinates_info(latitude, longitude)
@@ -68,28 +65,25 @@ class MapComponent:
         m = folium.Map(
             location=self.default_location,
             zoom_start=self.default_zoom,
-            tiles='OpenStreetMap',
-            control_scale=True
+            tiles="OpenStreetMap",
+            control_scale=True,
         )
         folium.Marker(
             self.default_location,
             popup=folium.Popup(
                 "🔍 Search for a location\nUse the search bar to see risk data",
-                max_width=250
+                max_width=250,
             ),
-            icon=folium.Icon(color='blue', icon='search')
+            icon=folium.Icon(color="blue", icon="search"),
         ).add_to(m)
         self._add_map_layers(m)
-        st_folium(
-            m,
-            width=700,
-            height=500,
-            returned_objects=["last_object_clicked"]
-        )
+        st_folium(m, width=700, height=500, returned_objects=["last_object_clicked"])
         st.info("🗺️ Select a location in the search bar to view risk data")
         return None
 
-    def _add_risk_marker(self, map_obj: folium.Map, risk_data: dict, location_data: dict) -> None:
+    def _add_risk_marker(
+        self, map_obj: folium.Map, risk_data: dict, location_data: dict
+    ) -> None:
         """Add a coloured marker to the map with a popup summarising the risk.
 
         The marker colour, popup text and tooltip all use the same
@@ -101,21 +95,22 @@ class MapComponent:
         marker colour is mapped to a Folium colour name (yellow → orange).
         """
         # Extract coordinates
-        lat = risk_data['location']['latitude']
-        lon = risk_data['location']['longitude']
+        lat = risk_data["location"]["latitude"]
+        lon = risk_data["location"]["longitude"]
         # Normalised risk index (0–1)
-        risk_index = risk_data.get('risk_index', 0.0)
+        risk_index = risk_data.get("risk_index", 0.0)
         # Determine label and colour according to our classification
         from utils.helpers import get_status_label_color, truncate
+
         label, colour_name = get_status_label_color(risk_index)
         # Map our colour names to Folium supported colours (yellow→orange)
-        folium_colour = {
-            'green': 'green',
-            'yellow': 'orange',
-            'red': 'red'
-        }.get(colour_name, 'blue')
+        folium_colour = {"green": "green", "yellow": "orange", "red": "red"}.get(
+            colour_name, "blue"
+        )
         # Create popup content using our truncated risk index and label
-        popup_content = self._create_popup_content(risk_data, location_data, label, risk_index)
+        popup_content = self._create_popup_content(
+            risk_data, location_data, label, risk_index
+        )
         # Tooltip shows the selected place and the risk category with truncated index
         truncated_index = truncate(risk_index, 2)
         tooltip_text = f"{location_data.get('name', 'Selected location')} – Risk: {label} (index: {truncated_index:.2f})"
@@ -123,24 +118,26 @@ class MapComponent:
             [lat, lon],
             popup=folium.Popup(popup_content, max_width=320),
             tooltip=tooltip_text,
-            icon=folium.Icon(color=folium_colour, icon='info-sign', prefix='glyphicon')
+            icon=folium.Icon(color=folium_colour, icon="info-sign", prefix="glyphicon"),
         ).add_to(map_obj)
         # Draw a circle with colour matching the risk category (using hex codes)
         colour_hex = {
-            'green': RISK_COLORS['LOW'],
-            'yellow': RISK_COLORS['MODERATE'],
-            'red': RISK_COLORS['HIGH']
-        }.get(colour_name, '#6c757d')
+            "green": RISK_COLORS["LOW"],
+            "yellow": RISK_COLORS["MODERATE"],
+            "red": RISK_COLORS["HIGH"],
+        }.get(colour_name, "#6c757d")
         folium.Circle(
             [lat, lon],
             radius=2000,
             popup=f"Influence zone – {label}",
             color=colour_hex,
             fill=True,
-            fillOpacity=0.2
+            fillOpacity=0.2,
         ).add_to(map_obj)
 
-    def _create_popup_content(self, risk_data: dict, location_data: dict, label: str, risk_index: float) -> str:
+    def _create_popup_content(
+        self, risk_data: dict, location_data: dict, label: str, risk_index: float
+    ) -> str:
         """Construct HTML content for the popup on the risk marker.
 
         Parameters
@@ -160,17 +157,18 @@ class MapComponent:
         str
             An HTML string rendered in the Folium popup.
         """
-        weather = risk_data['weather']
-        pollution = risk_data['pollution']
+        weather = risk_data["weather"]
+        pollution = risk_data["pollution"]
         # Truncate values for display without rounding
         from utils.helpers import truncate
-        temp = weather['temp_celsius']
-        humidity = weather['humidity']
-        wind_speed = weather['wind_speed']
-        timestamp = weather.get('timestamp', '')
-        pm25 = pollution['components'].get('pm2_5', 0.0)
-        pm10 = pollution['components'].get('pm10', 0.0)
-        o3 = pollution['components'].get('o3', 0.0)
+
+        temp = weather["temp_celsius"]
+        humidity = weather["humidity"]
+        wind_speed = weather["wind_speed"]
+        timestamp = weather.get("timestamp", "")
+        pm25 = pollution["components"].get("pm2_5", 0.0)
+        pm10 = pollution["components"].get("pm10", 0.0)
+        o3 = pollution["components"].get("o3", 0.0)
         popup_html = f"""
         <div style='font-size:0.9rem;'>
         <strong>📍 {location_data.get('name', 'Selected location')}</strong><br/>
@@ -199,25 +197,22 @@ class MapComponent:
         # layer by default.  This ensures the street map is visible at all
         # zoom levels with the option to switch to satellite or terrain.
         folium.TileLayer(
-            tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            attr='Esri',
-            name='Satellite',
+            tiles="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            attr="Esri",
+            name="Satellite",
             overlay=False,
-            control=True
+            control=True,
         ).add_to(map_obj)
         folium.TileLayer(
-            tiles='https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png',
-            attr='Map tiles by Stamen Design, CC BY 3.0 — Map data © OpenStreetMap contributors',
-            name='Terrain',
+            tiles="https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png",
+            attr="Map tiles by Stamen Design, CC BY 3.0 — Map data © OpenStreetMap contributors",
+            name="Terrain",
             overlay=False,
-            control=True
+            control=True,
         ).add_to(map_obj)
         # Add OpenStreetMap as a base layer last
         folium.TileLayer(
-            tiles='OpenStreetMap',
-            name='OpenStreetMap',
-            overlay=False,
-            control=True
+            tiles="OpenStreetMap", name="OpenStreetMap", overlay=False, control=True
         ).add_to(map_obj)
         # Add layer control to switch between base layers
         folium.LayerControl().add_to(map_obj)
@@ -228,4 +223,7 @@ class MapComponent:
     def _display_coordinates_info(self, lat: float, lon: float) -> None:
         """Display the coordinates of the selected point below the map with larger font."""
         formatted = format_coordinates(lat, lon, precision=5)
-        st.markdown(f"<p style='font-size:1rem; font-weight:500;'>📌 Coordinates: {formatted}</p>", unsafe_allow_html=True)
+        st.markdown(
+            f"<p style='font-size:1rem; font-weight:500;'>📌 Coordinates: {formatted}</p>",
+            unsafe_allow_html=True,
+        )

@@ -19,6 +19,7 @@ from utils.config import config  # use the global config instance
 
 class APIClient:
     """Client to interact with the backend API."""
+
     def __init__(self) -> None:
         self.base_url = config.BACKEND_URL
         self.timeout = config.API_TIMEOUT
@@ -65,7 +66,12 @@ class APIClient:
             st.error(f"❌ Unexpected error: {str(e)}")
             return None
 
-    def get_risk_data(self, query: str | None = None, mapbox_id: str | None = None, session_token: str | None = None) -> Optional[Dict]:
+    def get_risk_data(
+        self,
+        query: str | None = None,
+        mapbox_id: str | None = None,
+        session_token: str | None = None,
+    ) -> Optional[Dict]:
         """Retrieve risk data based on a query string or a Mapbox ID."""
         # Always generate a fresh session token for risk requests to avoid
         # hitting stale backend cache entries.  We keep the existing
@@ -89,6 +95,7 @@ class APIClient:
             # Include a timestamp parameter to bypass stale caching on the backend.
             # Use an hourly granularity to respect the OpenWeather cache TTL of 3600 seconds.
             import time as _time
+
             params["timestamp"] = int(_time.time() // 3600)
             with st.spinner("🔄 Retrieving weather and pollution data..."):
                 response = requests.get(url, params=params, timeout=self.timeout * 2)
@@ -103,7 +110,7 @@ class APIClient:
         except requests.exceptions.HTTPError as e:
             error_detail = "Unknown error"
             try:
-                error_detail = e.response.json().get('detail', str(e))
+                error_detail = e.response.json().get("detail", str(e))
             except Exception:
                 error_detail = str(e)
             st.error(f"❌ API error: {error_detail}")
@@ -125,12 +132,14 @@ class APIClient:
         status = {
             "backend": "🔴 Offline",
             "mapbox": "❓ Unknown",
-            "openweather": "❓ Unknown"
+            "openweather": "❓ Unknown",
         }
         if self.health_check():
             status["backend"] = "🟢 Online"
             try:
-                test_data = self.get_risk_data(query="Paris", session_token=str(uuid.uuid4()))
+                test_data = self.get_risk_data(
+                    query="Paris", session_token=str(uuid.uuid4())
+                )
                 if test_data:
                     status["mapbox"] = "🟢 Operational"
                     status["openweather"] = "🟢 Operational"
@@ -145,23 +154,46 @@ class APIClient:
 
 class MockAPIClient(APIClient):
     """Mock implementation of the API client used for development/testing."""
+
     def suggest_locations(self, query: str, session_token: str) -> List[Dict]:
         import time as _time
+
         _time.sleep(0.5)
         mock_suggestions = [
-            {"id": "mock_paris_1", "name": "Paris", "full_address": "Paris, France", "place_formatted": "75000 Paris, France"},
-            {"id": "mock_madrid_1", "name": "Madrid", "full_address": "Madrid, Spain", "place_formatted": "28000 Madrid, Spain"},
-            {"id": "mock_london_1", "name": "London", "full_address": "London, UK", "place_formatted": "London, United Kingdom"},
+            {
+                "id": "mock_paris_1",
+                "name": "Paris",
+                "full_address": "Paris, France",
+                "place_formatted": "75000 Paris, France",
+            },
+            {
+                "id": "mock_madrid_1",
+                "name": "Madrid",
+                "full_address": "Madrid, Spain",
+                "place_formatted": "28000 Madrid, Spain",
+            },
+            {
+                "id": "mock_london_1",
+                "name": "London",
+                "full_address": "London, UK",
+                "place_formatted": "London, United Kingdom",
+            },
         ]
-        return [s for s in mock_suggestions if query.lower() in s['name'].lower()][:5]
+        return [s for s in mock_suggestions if query.lower() in s["name"].lower()][:5]
 
-    def get_risk_data(self, query: str | None = None, mapbox_id: str | None = None, session_token: str | None = None) -> Optional[Dict]:
+    def get_risk_data(
+        self,
+        query: str | None = None,
+        mapbox_id: str | None = None,
+        session_token: str | None = None,
+    ) -> Optional[Dict]:
         import time as _time, random
+
         _time.sleep(1.0)
         return {
             "location": {
                 "latitude": 40.4168 + random.uniform(-0.1, 0.1),
-                "longitude": -3.7038 + random.uniform(-0.1, 0.1)
+                "longitude": -3.7038 + random.uniform(-0.1, 0.1),
             },
             "risk_index": random.uniform(0.1, 0.8),
             "risk_label": random.choice(["Low", "Moderate", "High"]),
@@ -170,7 +202,7 @@ class MockAPIClient(APIClient):
                 "temp_celsius": random.uniform(5, 25),
                 "humidity": random.randint(40, 90),
                 "wind_speed": random.uniform(1, 10),
-                "raw": {"weather": [{"description": "partly cloudy"}]}
+                "raw": {"weather": [{"description": "partly cloudy"}]},
             },
             "pollution": {
                 "timestamp": "2025-01-15T14:30:00+00:00",
@@ -180,9 +212,9 @@ class MockAPIClient(APIClient):
                     "o3": random.uniform(20, 120),
                     "no2": random.uniform(10, 80),
                     "so2": random.uniform(1, 20),
-                    "co": random.uniform(100, 1000)
+                    "co": random.uniform(100, 1000),
                 },
-                "raw": {}
+                "raw": {},
             },
             "norm": {
                 "pm2_5": random.uniform(0, 0.8),
@@ -193,8 +225,8 @@ class MockAPIClient(APIClient):
                 "so2": random.uniform(0, 0.2),
                 "temp": random.uniform(0, 0.5),
                 "hum": random.uniform(0, 0.7),
-                "wind": random.uniform(0, 0.8)
-            }
+                "wind": random.uniform(0, 0.8),
+            },
         }
 
     def health_check(self) -> bool:

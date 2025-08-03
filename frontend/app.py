@@ -28,17 +28,21 @@ def load_css() -> None:
     (preventing scrollbars on wide screens).
     """
     # Hide horizontal overflow to avoid sideways scrolling
-    st.markdown("""
+    st.markdown(
+        """
         <style>
         .stApp { overflow-x: hidden; }
         </style>
-    """, unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
     # Load custom CSS if present
     import pathlib
-    css_path = pathlib.Path(__file__).resolve().parent / 'static' / 'style.css'
+
+    css_path = pathlib.Path(__file__).resolve().parent / "static" / "style.css"
     if css_path.is_file():
         with css_path.open() as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
 
 def main() -> None:
@@ -50,7 +54,7 @@ def main() -> None:
         page_title=config.PAGE_TITLE,
         page_icon=config.PAGE_ICON,
         layout="wide",
-        initial_sidebar_state="expanded"
+        initial_sidebar_state="expanded",
     )
     # Load custom styles
     load_css()
@@ -72,7 +76,7 @@ def main() -> None:
             <p>An application combining weather and air quality</p>
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
     # First row: search bar and map side by side
     left_col, right_col = st.columns([1, 2])
@@ -85,8 +89,8 @@ def main() -> None:
             # Fetch risk data when a location is selected
             with st.spinner("Retrieving risk data..."):
                 risk_data = api_client.get_risk_data(
-                    mapbox_id=selected_location['id'],
-                    session_token=st.session_state.session_token
+                    mapbox_id=selected_location["id"],
+                    session_token=st.session_state.session_token,
                 )
             if risk_data:
                 # Store risk data in session state for reuse
@@ -94,10 +98,11 @@ def main() -> None:
                 st.session_state.selected_location = selected_location
     with right_col:
         st.markdown("### 🗺️ Interactive map")
-        if st.session_state.get('current_risk_data') and st.session_state.get('selected_location'):
+        if st.session_state.get("current_risk_data") and st.session_state.get(
+            "selected_location"
+        ):
             map_component.render(
-                st.session_state.current_risk_data,
-                st.session_state.selected_location
+                st.session_state.current_risk_data, st.session_state.selected_location
             )
         else:
             map_component.render_default()
@@ -115,7 +120,7 @@ def main() -> None:
         OpenWeather APIs are updated approximately every 2 hours.
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
