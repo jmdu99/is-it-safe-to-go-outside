@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  BACKEND_URL: http://backend:8000
+  API_TIMEOUT: "10"
+  DEVELOPMENT_MODE: "false"
+  USE_MOCK_API: "false"
+  LOG_LEVEL: "INFO"
