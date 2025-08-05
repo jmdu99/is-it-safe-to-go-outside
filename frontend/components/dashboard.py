@@ -433,7 +433,7 @@ class DashboardComponent:
                 name="Health limit",
                 x=labels,
                 y=thresholds,
-                mode="lines+markers",
+                mode="markers",
                 line=dict(color="red", width=3, dash="dash"),
                 marker=dict(size=8),
             )
