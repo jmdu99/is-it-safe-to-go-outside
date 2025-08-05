@@ -1,0 +1,7 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: nginx-managed-cert
+spec:
+  domains:
+  - 34-128-128-24.nip.io

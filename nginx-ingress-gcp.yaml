@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress-gcp
+  annotations:
+    kubernetes.io/ingress.class:                 "gce"
+    kubernetes.io/ingress.global-static-ip-name: "nginx-ip"
+    networking.gke.io/managed-certificates:      "nginx-managed-cert"
+spec:
+  ingressClassName: "gce"
+  tls:
+  - hosts:
+    - 34-128-128-24.nip.io
+  rules:
+  - host: 34-128-128-24.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-lb
+            port:
+              number: 80
